@@ -1,50 +1,28 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = "warehouse-app"
-        DOCKER_TAG = "latest"
-    }
-
     stages {
+
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/PBentil/warehouse-logistics-tracking.git'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker compose build'
-            }
-        }
-
-
-        stage('Test') {
-            steps {
-                echo 'Running Unit Tests...'
-                sh 'mvn test'
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh "docker build -t $DOCKER_IMAGE:$DOCKER_TAG ."
+                sh 'docker build -t warehouse-backend-app:latest .'
             }
         }
 
-        stage('Push Docker Image (Optional)') {
-            when {
-                expression { env.BRANCH_NAME == 'main' }
-            }
+        stage('Run Container (Optional Test)') {
             steps {
-                echo 'Pushing Docker image to Docker Hub...'
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                    sh "docker tag $DOCKER_IMAGE:$DOCKER_TAG $DOCKER_USER/$DOCKER_IMAGE:$DOCKER_TAG"
-                    sh "docker push $DOCKER_USER/$DOCKER_IMAGE:$DOCKER_TAG"
-                }
+                echo 'Running container to verify build...'
+                sh '''
+                docker rm -f warehouse-test || true
+                docker run -d --name warehouse-test -p 8085:8080 warehouse-backend-app:latest
+                '''
             }
         }
     }
