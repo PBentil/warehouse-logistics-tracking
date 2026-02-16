@@ -13,12 +13,12 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building Spring Boot app with Maven...'
-                sh 'mvn clean package -DskipTests'
+                sh 'docker compose build'
             }
         }
+
 
         stage('Test') {
             steps {
