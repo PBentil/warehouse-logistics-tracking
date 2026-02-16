@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/warehouse-backend.git'
+                git branch: 'main', url: 'https://github.com/PBentil/warehouse-logistics-tracking.git'
             }
         }
 
