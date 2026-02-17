@@ -12,7 +12,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh 'docker build -t warehouse-backend-app:latest .'
+                sh 'docker build -t warehouse-app:latest .'
             }
         }
 
